@@ -35,6 +35,14 @@ const SeriesFilm = (sequelize) => { return sequelize.define('series/film', {
       type: DataTypes.TINYINT(1),
       allowNull: false,
     },
+    poster: {
+      type: DataTypes.BLOB,
+      allowNull: false,
+    },
+    img_horiz: {
+      type: DataTypes.BLOB,
+      allowNull: false,
+    },
     preview: {
       type: DataTypes.BLOB,
       allowNull: false,
