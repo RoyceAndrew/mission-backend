@@ -18,7 +18,7 @@ const fileFilter = (req, file, cb) => {
   const allowedMimes = ['image/jpeg', 'image/png'];
   const allowedExtensions = ['.jpg', '.jpeg', '.png'];
   const ext = path.extname(file.originalname).toLowerCase();
-
+  
   if (
     allowedMimes.includes(file.mimetype) &&
     allowedExtensions.includes(ext)

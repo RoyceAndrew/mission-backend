@@ -5,9 +5,6 @@ import jwt from "jsonwebtoken";
 import env from "dotenv";
 import nodemailer from "nodemailer";
 import { v4 as uuidv4 } from "uuid";
-import { authToken } from "../middleware/authToken.js";
-import { upload } from "../middleware/upload.js";
-import multer from "multer";
 
 env.config();
 
@@ -78,7 +75,7 @@ const userRegister = async (req, res) => {
 
                   
                 await User.create({ username, fullname, email, password: hash, verify_token:verifyToken });
-                return res.status(201).json({ message: "User created successfully" });
+                return res.status(201).json({ message: "Verification email sent" });
             } catch (error) {
                 return res.status(500).json({ error: error.message });
             }
@@ -123,26 +120,15 @@ const verifyEmail = async (req, res) => {
     return res.status(200).json({ message: "Email verified successfully" });
 }
 
-const uploadData = [authToken,
-    upload.single("file"),
-    (req, res) => {
-      res.json({
-        status: "success",
-        data: {
-          filename: req.file.filename,
-          path: req.file.path,
-          size: req.file.size
-        }
-      });
-    },
-    (err, req, res, next) => {
-        if (err instanceof multer.MulterError) {
-          const message = err.code === 'LIMIT_FILE_SIZE' 
-            ? 'File exceeds size limit' 
-            : 'Invalid file type';
-          return res.status(400).json({ status: "error", message });
-        }
-        res.status(500).json({ status: "error", message: "Upload failed" });
-      }]
+const uploadData = (req, res) => {
+        res.json({
+            status: "success",
+            data: {
+              filename: req.file.filename,
+              path: req.file.path,
+              size: req.file.size
+            }
+          });
+}
 
 export {userRegister, userLogin, verifyEmail, uploadData}

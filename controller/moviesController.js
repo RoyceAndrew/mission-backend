@@ -1,7 +1,7 @@
 
 import { sq, Sefi, Gen } from "../database/chilldb.js";
 import FilmGenre from "../model/genre_movie.js";
-import { Op, Sequelize, where } from "sequelize";
+import { Op } from "sequelize";
 import sequelize from "sequelize";
 
 sq.authenticate().then(() => {
@@ -35,7 +35,7 @@ const getAllMovies = async (req, res) => {
         }] 
     }); 
         if (result.length === 0) {
-            return res.status(204).json({ error: "Data not found" });
+            return res.status(204).json({ error: "No Content" });
         }
         return res.status(200).json(result);
     } catch (error) {
