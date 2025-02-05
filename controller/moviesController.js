@@ -1,6 +1,8 @@
 
 import { sq, Sefi, Gen } from "../database/chilldb.js";
 import FilmGenre from "../model/genre_movie.js";
+import { Op, Sequelize, where } from "sequelize";
+import sequelize from "sequelize";
 
 sq.authenticate().then(() => {
     console.log('Connection has been established successfully.');
@@ -12,7 +14,20 @@ sq.authenticate().then(() => {
 const getAllMovies = async (req, res) => {
     try {
         await sq.sync(); 
-        const result = await Sefi.findAll({ include: 
+        const whereClause = {};
+
+       if (req.query.search) {
+          whereClause.judul = { [Op.like]: `%${req.query.search}%` };
+        }
+
+        if (req.query.filter) {
+          whereClause.batasan_usia = req.query.filter;
+        }
+        const result = await Sefi.findAll({ 
+            where: whereClause,
+            order: req.query.sort ? sequelize.literal("tahun " + req.query.sort) : null,
+            
+            include: 
             [{ 
             model: Gen,
             attributes: ["nama"],
