@@ -47,15 +47,18 @@ const updateMoviesById = async (req, res) => {
     try {
         await sq.sync();
         const {genres, ...moviesdata} = req.body;
-        const result = await Sefi.update(moviesdata, {where: {id: req.params.id}});
-        if (result.length === 0) {
-            return res.status(204).json({ error: "Data not found" });
+        const check = await Sefi.findOne({where: {id: req.params.id}});
+        
+        
+        if (!check) {
+            return res.status(404).json({ error: "Data not found" });
         }
         if (genres && genres.length > 0) {
             await FilmGenre.destroy({where: {'series/filmId': req.params.id}});
             await FilmGenre.bulkCreate(genres.map((genre) => ({'series/filmId': req.params.id, genreId: genre})));
         }
-        return res.status(202).json(result);
+        await Sefi.update(moviesdata, {where: {id: req.params.id}});
+        return res.status(202).json(await Sefi.findOne({where: {id: req.params.id}}));
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
@@ -72,7 +75,7 @@ const getSingleMovie = async (req, res) => {
         }]
         });
         if (!result) {
-            return res.status(204).json({ error: "Data not found" });
+            return res.status(404).json({ error: "Data not found" });
         }
         return res.status(200).json(result);
         } catch (err) {
@@ -83,12 +86,13 @@ const getSingleMovie = async (req, res) => {
 const deleteMoviesById = async (req, res) => {
     try {
         await sq.sync();
-        const result = await Sefi.destroy({where: {id: req.params.id}});
-        if (result.length === 0) {
-            return res.status(204).json({ error: "Data not found" });
+        const check = await Sefi.findOne({where: {id: req.params.id}});
+        if (!check) {
+            return res.status(404).json({ error: "Data not found" });
         }
+        await Sefi.destroy({where: {id: req.params.id}});
         await FilmGenre.destroy({where: {'series/filmId': req.params.id}});
-        return res.status(202).json(result);
+        return res.status(202).json({ message: "Data deleted successfully" });
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
@@ -105,8 +109,14 @@ const createMovies = async (req, res) => {
         if (result) {
            await FilmGenre.bulkCreate(genres.map((genre) => ({'series/filmId': result.id, genreId: genre})));
         }
-        return res.status(201).json(result);
+        return res.status(201).json(await Sefi.findOne({where: {id: result.id}}));
     } catch (error) {
+        if (error.name === "SequelizeValidationError") {
+            const errorMessages = error.errors.map(err => 
+                err.message.replace(/^series\/film\./, "") 
+            );
+            return res.status(400).json({ errors: errorMessages });
+        }
         return res.status(500).json({ error: error.message });
     }
 }
