@@ -1,0 +1,3 @@
+JWTKEY=abwdihavgwuhdvawiud1238147891t78uuiabssduifabd3123
+PASSWORDEMAIL=dsse ofaw obsu piig
+EMAIL=c00017954@gmail.com
